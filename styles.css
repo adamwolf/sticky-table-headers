@@ -1,8 +1,39 @@
-/*
+/* @settings
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
+name: Sticky Table Headers
+id: sticky-table-headers
+settings:
+    -
+        id: sticky-table-headers-custom-floating-headers
+        title: Customize floating table header background
+        description: Enable custom styling for table headers when they're floating
+        type: class-toggle
+        default: true
+    -
+        id: sticky-table-headers-floating-table-header-background
+        title: Floating header background
+        description: Background color for floating table headers
+        type: variable-color
+        opacity: true
+        format: hex
+        default: '#FAFAFA'
 */
+
+.markdown-reading-view .el-table {
+    overflow: visible !important;
+}
+
+.markdown-source-view .cm-embed-block.cm-table-widget {
+    overflow: visible;
+}
+
+.markdown-source-view.mod-cm6 .cm-table-widget th,
+.markdown-reading-view .el-table thead th {
+    position: sticky;
+    top: calc(-1 * var(--file-margins) - 1px); /* Handle border gap */
+    z-index: 1000;
+}
+
+body.sticky-table-headers-custom-floating-headers table.header-floating thead th {
+    background-color: var(--sticky-table-headers-floating-table-header-background);
+}

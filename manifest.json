@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
+	"id": "sticky-table-headers",
+	"name": "Sticky Table Headers",
+	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Adds sticky table headers to Obsidian so you can see the headers when scrolling through long tables.",
+	"author": "Adam Wolf",
+	"authorUrl": "https://www.atomwolf.org",
 	"isDesktopOnly": false
 }
