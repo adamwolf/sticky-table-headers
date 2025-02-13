@@ -26,16 +26,20 @@ Normally, Obsidian tables have `overflow-x: auto` set on a wrapper div.  This me
 
 # Development
 
-## How to use
+## Getting started
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+There are many ways to do this. If you don't already have a way you like, you can try this:
+- 
+- Clone this repository.
+- Install the JavaScript dependencies with `npm install`.
+- To compile `main.ts` into `main.js`, you can run `npm run dev`. This runs `watch mode`, where changes in the input files trigger a new build.
+
+Obsidian won't automatically pick up changes in your files.
 
 ## Manually installing the plugin
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/sticky-table-headers/`.
+- Reload Obsidian, or toggle the plugin off and on again in Settings > Community plugins.
 
 ## Resources
 
