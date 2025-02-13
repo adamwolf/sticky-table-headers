@@ -1,134 +1,205 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Plugin } from 'obsidian';
 
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
+interface ScrollHandler {
+    element: HTMLElement;
+    handler: (event: Event) => void;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+export default class StickyTableHeadersPlugin extends Plugin {
+    private observers: IntersectionObserver[] = [];
+    private scrollHandlers: ScrollHandler[] = [];
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+    async onload() {
+        // For edit view
+        this.registerEvent(
+            this.app.workspace.on('layout-change', () => {
+                try {
+                    const editView = document.querySelector('.markdown-source-view') as HTMLElement | null;
+                    if (!editView) {
+                        // console.debug('Sticky Table Headers: No edit view found');
+                        return;
+                    }
 
-	async onload() {
-		await this.loadSettings();
+                    const tables = editView.querySelectorAll('table');
+                    if (!tables.length) {
+                        // console.debug('Sticky Table Headers: No tables found in edit view');
+                        return;
+                    }
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass('my-plugin-ribbon-class');
+                    tables.forEach((table) => {
+                        try {
+                            const thead = table.querySelector('thead');
+                            if (!thead) {
+                                console.debug('Sticky Table Headers: Table missing thead', table);
+                                return;
+                            }
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status Bar Text');
+                            const scroller = editView.querySelector('.cm-scroller') as HTMLElement | null;
+                            if (!scroller) {
+                                console.debug('Sticky Table Headers: No scroller found in edit view');
+                                return;
+                            }
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'sample-editor-command',
-			name: 'Sample editor command',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				console.log(editor.getSelection());
-				editor.replaceSelection('Sample Editor Command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+                            const scrollHandler = (event: Event) => {
+                                try {
+                                    const headerRect = thead.getBoundingClientRect();
+                                    const scrollerRect = scroller.getBoundingClientRect();
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-			}
-		});
+                                    if (headerRect.top < scrollerRect.top) {
+                                        (table as HTMLElement).classList.add('header-floating');
+                                        this.triggerHeaderStateChange(table as HTMLElement, true);
+                                    } else {
+                                        (table as HTMLElement).classList.remove('header-floating');
+                                        this.triggerHeaderStateChange(table as HTMLElement, false);
+                                    }
+                                } catch (error) {
+                                    console.error('Sticky Table Headers: Error in scroll handler', error);
+                                }
+                            };
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+                            // Store handler reference for cleanup
+                            this.scrollHandlers.push({
+                                element: scroller,
+                                handler: scrollHandler
+                            });
 
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
+                            scroller.addEventListener('scroll', scrollHandler, { passive: true });
 
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	}
+                            // Initial check
+                            const headerRect = thead.getBoundingClientRect();
+                            const scrollerRect = scroller.getBoundingClientRect();
+                            if (headerRect.top < scrollerRect.top) {
+                                (table as HTMLElement).classList.add('header-floating');
+                                this.triggerHeaderStateChange(table as HTMLElement, true);
+                            }
+                        } catch (error) {
+                            console.error('Sticky Table Headers: Error processing table in edit view', error);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Sticky Table Headers: Error in layout-change handler', error);
+                }
+            })
+        );
 
-	onunload() {
+        // Post processor for reading view
+        this.registerMarkdownPostProcessor(async (element) => {
+            try {
+                // Wait a bit for layout to settle
+                await new Promise(resolve => setTimeout(resolve, 100));
 
-	}
+                const previewView = element.closest('.markdown-preview-view') as HTMLElement | null;
+                if (!previewView) {
+                    // console.debug('Sticky Table Headers: No preview view found');
+                    return;
+                }
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
+                const tables = element.querySelectorAll('table');
+                if (!tables.length) {
+                    // console.debug('Sticky Table Headers: No tables found in preview');
+                    return;
+                }
 
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
+                tables.forEach((table) => {
+                    try {
+                        const thead = table.querySelector('thead');
+                        if (!thead) {
+                            console.debug('Sticky Table Headers: Table missing thead', table);
+                            return;
+                        }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
+                        const scrollHandler = () => {
+                            try {
+                                const headerRect = thead.getBoundingClientRect();
+                                const previewRect = previewView.getBoundingClientRect();
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
+                                if (headerRect.top < previewRect.top) {
+                                    (table as HTMLElement).classList.add('header-floating');
+                                    this.triggerHeaderStateChange(table as HTMLElement, true);
+                                } else {
+                                    (table as HTMLElement).classList.remove('header-floating');
+                                    this.triggerHeaderStateChange(table as HTMLElement, false);
+                                }
+                            } catch (error) {
+                                console.error('Sticky Table Headers: Error in preview scroll handler', error);
+                            }
+                        };
 
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
+                        // Store handler reference for cleanup
+                        this.scrollHandlers.push({
+                            element: previewView,
+                            handler: scrollHandler
+                        });
 
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+                        previewView.addEventListener('scroll', scrollHandler, { passive: true });
 
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
+                        // Initial check
+                        const headerRect = thead.getBoundingClientRect();
+                        const previewRect = previewView.getBoundingClientRect();
+                        if (headerRect.top < previewRect.top) {
+                            (table as HTMLElement).classList.add('header-floating');
+                            this.triggerHeaderStateChange(table as HTMLElement, true);
+                        }
+                    } catch (error) {
+                        console.error('Sticky Table Headers: Error processing table in preview', error);
+                    }
+                });
+            } catch (error) {
+                console.error('Sticky Table Headers: Error in markdown post processor', error);
+            }
+        });
 
-	display(): void {
-		const {containerEl} = this;
+        // Notify Style Settings about new plugin
+        this.app.workspace.trigger("parse-style-settings");
+    }
 
-		containerEl.empty();
+    private triggerHeaderStateChange(table: HTMLElement, isFloating: boolean) {
+        try {
+            const event = new CustomEvent('table-header-float', {
+                detail: {
+                    table: table,
+                    isFloating: isFloating
+                },
+                bubbles: true
+            });
+            table.dispatchEvent(event);
+        } catch (error) {
+            console.error('Sticky Table Headers: Error triggering header state change', error);
+        }
+    }
 
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
-	}
+    onunload() {
+        // Clean up observers
+        this.observers.forEach(observer => {
+            try {
+                observer.disconnect();
+            } catch (error) {
+                console.error('Sticky Table Headers: Error disconnecting observer', error);
+            }
+        });
+        this.observers = [];
+
+        // Clean up scroll event listeners
+        this.scrollHandlers.forEach(({element, handler}) => {
+            try {
+                element.removeEventListener('scroll', handler);
+            } catch (error) {
+                console.error('Sticky Table Headers: Error removing scroll listener', error);
+            }
+        });
+        this.scrollHandlers = [];
+
+        // Remove floating classes
+        try {
+            document.querySelectorAll('.header-floating').forEach(el => {
+                try {
+                    (el as HTMLElement).classList.remove('header-floating');
+                } catch (error) {
+                    console.error('Sticky Table Headers: Error removing floating class from element', error);
+                }
+            });
+        } catch (error) {
+            console.error('Sticky Table Headers: Error removing floating classes', error);
+        }
+    }
 }

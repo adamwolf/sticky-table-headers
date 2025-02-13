@@ -1,48 +1,30 @@
-# Obsidian Sample Plugin
+# Sticky Table Headers plugin for Obsidian
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+Sticky Table Headers is a plugin for [Obsidian](https://obsidian.md) that makes table headers sticky, so they stay visible when scrolling through long tables.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+By default, the floating table headers are transparent and can be difficult to read.  If you install the [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) plugin, floating table headers have a customizable background color.
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+![Animation scrolling through an Obsidian page with a long table. The header sticks to the window instead of scrolling off the screen. ](./media/animation.gif)
 
-## First time developing plugins?
+This plugin works for me, but I do not use every corner of Obsidian, or many other plugins. If this plugin causes problems for you, please stop using it and let me know what happened.
 
-Quick starting guide for new plugin devs:
+## Installation
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+Sticky Table Headers has not yet been submitted to the Obsidian plugin gallery.
 
-## Releasing new releases
+## Usage
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+Once you install and enable the plugin, the first row of tables should be sticky.  If you have tabs open, you may need to reload them or switch between reading and editing view.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+Installing the [Style Settings](https://obsidian.md/plugins?id=obsidian-style-settings) plugin enables backgrounds on floating table header. You can find the details by opening the Style Settings plugin settings and looking for "Sticky Table Headers".
 
-## Adding your plugin to the community plugin list
+## Technical Details
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+The IntersectionObserver in `main.ts` adds a `header-floating` class to tables when the header is floating.  This is used the styling found in `styles.css`.
+
+Normally, Obsidian tables have `overflow-x: auto` set on a wrapper div.  This means that wide tables will have a scrollbar and scroll horizontally. However, I wasn't able to get the table headers to be sticky if there was a parent container with `overflow-x:` anything but `visible`.  This plugin overrides that, which may cause problems with wide tables.  Please let me know if you run into issues.
+
+# Development
 
 ## How to use
 
@@ -55,40 +37,29 @@ Quick starting guide for new plugin devs:
 
 - Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
+## Resources
 
-## Funding URL
+* [Obsidian API Documentation](https://github.com/obsidianmd/obsidian-api)
 
-You can include funding URLs where people who use your plugin can financially support it.
+## Releasing new releases
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
+- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
+- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
+- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
+- Publish the release.
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
-```
+> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
+> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
 
-If you have multiple URLs, you can also do:
+## License
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+sticky-table-headers is licensed under the GNU GPL v3.0 license.  Alternative licensing arrangements may be available upon request.
 
-## API Documentation
+sticky-table-headers was started from a template at https://github.com/obsidianmd/obsidian-sample-plugin/commit/6d09ce3e39c4e48d756d83e7b51583676939a5a7 which contained the following:
 
-See https://github.com/obsidianmd/obsidian-api
+> Copyright (C) 2020-2025 by Dynalist Inc.
+> 
+> Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
+> 
+> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
