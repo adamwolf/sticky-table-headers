@@ -149,6 +149,32 @@ export default class StickyTableHeadersPlugin extends Plugin {
             }
         });
 
+		this.registerEvent(
+			this.app.workspace.on("css-change", () => {
+				// if --file-margins-top doesn't exist on body,
+				// check if --file-margins exists on body, and then
+				// extract just the "top" value.
+				// if --file-margins doesn't exist, don't set --file-margins-top
+
+				const varBase = document.body;
+
+				const fileMargins = getComputedStyle(varBase)
+					.getPropertyValue("--file-margins")
+					.trim();
+				const fileMarginsTop = getComputedStyle(varBase)
+					.getPropertyValue("--file-margins-top")
+					.trim();
+
+				if ((!fileMarginsTop) && fileMargins) {
+					// We have file-margins, but not file-margins-top
+					// Let's figure out what it should be, and create it.
+					const fileMarginsArray = fileMargins.split(" ");
+					const fileMarginsTop = fileMarginsArray[0];
+					varBase.style.setProperty("--file-margins-top", fileMarginsTop);
+				}
+			})
+		);
+
         // Notify Style Settings about new plugin
         this.app.workspace.trigger("parse-style-settings");
     }
