@@ -1,6 +1,6 @@
 {
 	"name": "sticky-table-headers-plugin-for-obsidian",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Sticky Table Headers is a plugin for Obsidian (https://obsidian.md) that makes table headers stick to the top when scrolling through long tables.",
 	"main": "main.js",
 	"scripts": {
