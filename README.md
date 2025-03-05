@@ -12,6 +12,8 @@ This plugin works for me, but I do not use every corner of Obsidian, or many oth
 
 Sticky Table Headers has not yet been submitted to the Obsidian plugin gallery.
 
+You can install this manually, but you could use the ["Beta Reviewer's Auto-update Tool" (BRAT)](https://tfthacker.com/BRAT) plugin.
+
 ## Usage
 
 Once you install and enable the plugin, the first row of tables should be sticky.  If you have tabs open, you may need to reload them or switch between reading and editing view.
