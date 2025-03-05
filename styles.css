@@ -30,7 +30,7 @@ settings:
 .markdown-source-view.mod-cm6 .cm-table-widget th,
 .markdown-reading-view .el-table thead th {
     position: sticky;
-    top: calc(-1 * var(--file-margins) - 1px); /* Handle border gap */
+    top: calc(-1 * var(--file-margins-top, 1px) - 1px); /* Handle border gap */
     z-index: 1000;
 }
 
