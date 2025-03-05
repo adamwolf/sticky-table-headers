@@ -40,7 +40,7 @@ export default class StickyTableHeadersPlugin extends Plugin {
                                 return;
                             }
 
-                            const scrollHandler = (event: Event) => {
+                            const scrollHandler = () => {
                                 try {
                                     const headerRect = thead.getBoundingClientRect();
                                     const scrollerRect = scroller.getBoundingClientRect();
