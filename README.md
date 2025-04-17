@@ -31,7 +31,7 @@ Normally, Obsidian tables have `overflow-x: auto` set on a wrapper div.  This me
 ## Getting started
 
 There are many ways to do this. If you don't already have a way you like, you can try this:
-- 
+ 
 - Clone this repository.
 - Install the JavaScript dependencies with `npm install`.
 - To compile `main.ts` into `main.js`, you can run `npm run dev`. This runs `watch mode`, where changes in the input files trigger a new build.
