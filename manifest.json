@@ -3,7 +3,7 @@
 	"name": "Sticky Table Headers",
 	"version": "0.2.0",
 	"minAppVersion": "0.15.0",
-	"description": "Adds sticky table headers to Obsidian so you can see the headers when scrolling through long tables.",
+	"description": "Keep table headers visible when scrolling through long tables.",
 	"author": "Adam Wolf",
 	"authorUrl": "https://www.atomwolf.org",
 	"isDesktopOnly": false
