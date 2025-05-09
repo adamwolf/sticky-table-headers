@@ -1,7 +1,7 @@
 {
 	"id": "sticky-table-headers",
 	"name": "Sticky Table Headers",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"minAppVersion": "0.15.0",
 	"description": "Keep table headers visible when scrolling through long tables.",
 	"author": "Adam Wolf",
